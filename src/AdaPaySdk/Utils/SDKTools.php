@@ -8,7 +8,7 @@ use Dwc\AdaPay\AdaPayCore\AdaPay;
 class SDKTools extends AdaPay
 {
     //创建静态私有的变量保存该类对象
-    static private SDKTools $instance;
+    static private $instance;
 
     public function __construct()
     {
@@ -19,7 +19,7 @@ class SDKTools extends AdaPay
     {
     }
 
-    static public function getInstance(): SDKTools
+    static public function getInstance()
     {
         //判断$instance是否是Singleton的对象，不是则创建
         if (!self::$instance instanceof self) {
@@ -45,8 +45,4 @@ class SDKTools extends AdaPay
         return $this->ada_request->curl_request($req_url . "?" . http_build_query($request_params), "", $header, false);
     }
 
-    public function isError()
-    {
-        return $this->isError();
-    }
 }
