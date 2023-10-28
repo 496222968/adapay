@@ -20,5 +20,10 @@
       "email": "496222968@qq.com"
     }
   ],
-  "minimum-stability": "dev"
+  "minimum-stability": "dev",
+  "extra": {
+    "hyperf": {
+      "config": "Dwc\\AdaPay\\ConfigProvider"
+    }
+  }
 }
