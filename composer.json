@@ -1,0 +1,24 @@
+{
+  "name": "dwc/adapay",
+  "description": "adapay sdk",
+  "type": "library",
+  "require": {
+    "php": ">=8.0",
+    "hyperf/guzzle": "^2.2",
+    "ext-openssl": "*",
+    "ext-mbstring": "*"
+  },
+  "license": "MIT",
+  "autoload": {
+    "psr-4": {
+      "Dwc\\AdaPay\\": "src/"
+    }
+  },
+  "authors": [
+    {
+      "name": "MAC",
+      "email": "496222968@qq.com"
+    }
+  ],
+  "minimum-stability": "dev"
+}
