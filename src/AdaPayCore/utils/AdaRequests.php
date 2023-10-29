@@ -3,70 +3,44 @@
 namespace Dwc\AdaPay\AdaPayCore\utils;
 
 use Dwc\AdaPay\AdaPayCore\AdaPay;
-use Hyperf\Guzzle\ClientFactory;
-use Hyperf\Utils\ApplicationContext;
 
 class AdaRequests
 {
 
-    public string $postCharset = "utf-8";
-
-    /**
-     * @param $url
-     * @param $postFields
-     * @param $headers
-     * @param $is_json
-     * @return array
-     * @throws \GuzzleHttp\Exception\GuzzleException
-     * @throws \Psr\Container\ContainerExceptionInterface
-     * @throws \Psr\Container\NotFoundExceptionInterface
-     */
     public function curl_request($url, $postFields = null, $headers = null, $is_json = false): array
     {
-        $clientFactory = ApplicationContext::getContainer()->get(ClientFactory::class);
-        $client = $clientFactory->create();
+        AdaPay::writeLog("curl方法参数:" . json_encode(func_get_args(), JSON_UNESCAPED_UNICODE), "INFO");
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_FAILONERROR, false);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HEADER, 0);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         if (is_array($postFields) && 0 < count($postFields)) {
-            if ($headers) {
-                $n_headers = [];
-                foreach ($headers as $k => $header) {
-                    if (!is_numeric($k)) {
-                        $n_headers[$k] = $header;
-                    } else {
-                        $n_headers[trim(explode(':', $header)[0])] = trim(explode(':', $header)[1]);
-                    }
-                }
-                $headers = $n_headers;
-            }
+            curl_setopt($ch, CURLOPT_POST, true);
             if ($is_json) {
                 $json_data = json_encode($postFields);
-                $headers['Content-Length'] = strlen($json_data);
-                AdaPay::writeLog("请求头:" . json_encode($headers, JSON_UNESCAPED_UNICODE), "INFO");
                 AdaPay::writeLog("post-json请求参数:" . json_encode($postFields, JSON_UNESCAPED_UNICODE), "INFO");
-                $res = $client->post($url, ['json' => $postFields, 'headers' => $headers]);
+                array_push($headers, "Content-Length:" . strlen($json_data));
+                curl_setopt($ch, CURLOPT_POSTFIELDS, $json_data);
             } else {
-                AdaPay::writeLog("请求头:" . json_encode($headers, JSON_UNESCAPED_UNICODE), "INFO");
                 AdaPay::writeLog("post-form请求参数:" . json_encode($postFields, JSON_UNESCAPED_UNICODE), "INFO");
-                $res = $client->post($url, ['form_params' => $postFields, 'headers' => $headers]);
-            }
-        } else {
-            if (empty($headers)) {
-                $headers = ['Content-type' => 'application/x-www-form-urlencoded'];
-            }
-            AdaPay::writeLog("请求头:" . json_encode($headers, JSON_UNESCAPED_UNICODE), "INFO");
-            $res = $client->get($url, ['headers' => $headers]);
-        }
-        return [$res->getStatusCode(), $res->getBody()->getContents()];
-    }
-
-    function characet($data, $targetCharset)
-    {
-
-        if (!empty($data)) {
-            $fileType = $this->postCharset;
-            if (strcasecmp($fileType, $targetCharset) != 0) {
-                $data = mb_convert_encoding($data, $targetCharset, $fileType);
+                curl_setopt($ch, CURLOPT_POSTFIELDS, $postFields);
             }
         }
-        return $data;
+        if (empty($headers)) {
+            $headers = array('Content-type: application/x-www-form-urlencoded');
+        }
+        AdaPay::writeLog("curl请求头:" . json_encode($headers, JSON_UNESCAPED_UNICODE), "INFO");
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        $response = curl_exec($ch);
+        $statuCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        if (curl_errno($ch)) {
+            AdaPay::writeLog(curl_error($ch), "ERROR");
+        }
+        curl_close($ch);
+        AdaPay::writeLog("curl返回参数:" . $statuCode . json_encode($response, JSON_UNESCAPED_UNICODE), "INFO");
+        return array($statuCode, $response);
     }
+
 }
