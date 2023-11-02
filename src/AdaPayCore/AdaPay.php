@@ -71,14 +71,12 @@ class AdaPay
             $config_obj = json_decode($cfg_file_str, true);
         }
 
-        $sdk_version = defined("SDK_VERSION") ? SDK_VERSION : "v1.0.0";
+        $sdk_version = "v1.4.4";
         self::$header['sdk_version'] = $sdk_version;
         self::$headerText['sdk_version'] = $sdk_version;
         self::$headerEmpty['sdk_version'] = $sdk_version;
-        self::$isDebug = defined("DEBUG") && DEBUG;
-        self::$logDir = defined("DEBUG") ? LOG : dirname(__FILE__) . "/log";
-        $project_env = defined("ENV") ? ENV : "prod";
-        self::init_mqtt($project_env);
+        self::$isDebug = true;
+        self::$logDir = BASE_PATH . "/runtime/logs/adapay";
 
         if ($prod_mode == 'live') {
             self::$api_key = $config_obj['api_key_live'] ?? '';
@@ -155,16 +153,6 @@ class AdaPay
             $fp = fopen($log_file, "a+");
             fwrite($fp, $message_format);
             fclose($fp);
-        }
-    }
-
-    public static function init_mqtt($project_env): void
-    {
-        if (isset($project_env) && $project_env == "test") {
-            self::$mqttAddress = "post-cn-459180sgc02.mqtt.aliyuncs.com:1883";
-            self::$mqttGroupId = "GID_CRHS_ASYN";
-            self::$mqttInstanceId = "post-cn-459180sgc02";
-            self::$mqttAccessKey = "LTAILQZEm73RcxhY";
         }
     }
 
