@@ -4,7 +4,6 @@
   "type": "library",
   "require": {
     "php": ">=8.0",
-    "hyperf/guzzle": "^2.2",
     "ext-openssl": "*",
     "ext-mbstring": "*"
   },
